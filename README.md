@@ -1,3 +1,5 @@
+# isntall cli angular
+npm i @angular/cli
 # Ecommerce
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.5.
@@ -25,3 +27,35 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## crea proyeto
+ng new ecommerce ##crea un nuevo proyecto de angular
+
+## StringInterpolation enviamos el valor de typeScript a datos que pueda interpretar el html
+{{ sample }} 
+## propertie binding enlaza una variable de typeScript vs una propiedad de algun elemnto, esto lo hace en un sola via para leer informacion
+[disabled]="btnDisable" 
+
+## eventos en angular
+<button (click)="onSave()">Save</button>
+<div class="box" (scroll)="onScroll($event)">
+
+## data binding enlaza variables de typeScript con elementos de html de manera directa y en dos vias
+<input type="text" required #nameInput="ngModel" [(ngModel)]="person.name" />
+
+## ngIf estructura de control en angular
+<p *ngIf="person.name === 'elvis' && person.age>=18; else myBlock">soy elvis mayor de Edad</p>
+<ng-template #myBlock>
+  <p>Es menor de edad y quizas no se llama elvis</p>
+</ng-template>
+
+## ngFor recorre un arrelgo de cualquier tipo
+<ul>
+  <li *ngIf="names.length === 0">No hay elementos</li>
+  <li *ngFor="let name of names; index as i">
+    {{i}} - {{name}}
+    <button (click)="delete(i)">Delete</button>
+  </li>
+</ul>
+
+
