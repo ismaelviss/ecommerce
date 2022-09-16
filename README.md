@@ -59,3 +59,17 @@ ng new ecommerce ##crea un nuevo proyecto de angular
 </ul>
 
 
+## componentes
+ejemplo
+ng g c "name"
+### componentes sin test y sin estilos
+ng g c componentes/img --skip-tests -is
+
+### para crear pipes de transformacion
+ng g p pipes/reverse
+
+### para crear directivas
+ng g d directives/highlight
+
+### para crear servicios
+ng g s services/products/products
