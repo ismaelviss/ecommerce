@@ -13,10 +13,15 @@ export class ProductComponent {
   @Input('product') product!: Product;
 
   @Output() addedProduct = new EventEmitter();
+  @Output() showProduct = new EventEmitter<number>();
 
   constructor() { }
 
   onAddToCart() {
     this.addedProduct.emit(this.product);
+  }
+
+  showDetails() {
+    this.showProduct.emit(this.product.id);
   }
 }

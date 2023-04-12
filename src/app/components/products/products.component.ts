@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from 'src/app/models/product.model';
+import { CreateProductDTO, Product, UpdateProduct } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { StoreService } from 'src/app/services/store/store.service';
 
@@ -11,6 +11,11 @@ import { StoreService } from 'src/app/services/store/store.service';
 })
 export class ProductsComponent implements OnInit {
 
+  showProductDetail = false;
+  productChosen!: Product
+
+  limit = 10;
+  offset = 0;
 
   constructor(
     private storeService: StoreService,
@@ -20,10 +25,17 @@ export class ProductsComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    this.productsService
-    .getAllProducts()
-    .subscribe(data => {
-      this.products = data;
+
+    this.offset = 0;
+    this.loadMore()
+  }
+
+  loadMore() {
+    this.productsService.getProductsByPage(this.limit, this.offset).subscribe(data => {
+      if (data.length > 0) {
+        this.products = this.products.concat(data);
+        this.offset += this.limit;
+      }
     });
   }
 
@@ -67,4 +79,56 @@ export class ProductsComponent implements OnInit {
     this.total = this.storeService.getTotal();
   }
 
+  toggleProductDeatil() {
+    this.showProductDetail = !this.showProductDetail;
+  }
+
+  onShowDetails(id: number) {
+    console.log('id: ' + id);
+    this.productsService.getProduct(id).subscribe(data => {
+      console.log('product: ', data);
+      this.toggleProductDeatil();
+      this.productChosen = data;
+    });
+  }
+
+  createNewProduct() {
+    const product: CreateProductDTO = {
+      categoryId: 1,
+      description: 'prueba elvis',
+      images: [''],
+      price: 1,
+      title: 'prueba elvis'
+    };
+
+    this.productsService.create(product).subscribe(data => {
+      console.log('created',data);
+      this.products.unshift(data);
+    });
+  }
+
+  updateProduct() {
+    const changes: UpdateProduct = {
+      title: 'nuevo title'
+    };
+    const id = this.productChosen.id;
+    this.productsService.update(id, changes).subscribe(
+      data => {
+        console.log('updated', data);
+        const productIndex = this.products.findIndex(item => item.id == id);
+        this.products[productIndex] = data;
+      }
+    );
+  }
+
+  deleteProduct() {
+    const id = this.productChosen.id;
+    this.productsService.delete(id).subscribe(data => {
+      if (data) {
+        const productIndex = this.products.findIndex(item => item.id == id);
+        this.products.splice(productIndex, 1);
+        this.showProductDetail = false;
+      }
+    });
+  }
 }
