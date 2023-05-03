@@ -76,6 +76,9 @@ ejemplo
 ### para crear servicios
 `ng g s services/products/products`
 
+### para crear interceptores
+`ng g interceptor interceptors/token --flat`
+
 ## creacion de proxy para salta CORS en Dev
 hay que crear el archivo proxy.config.json
 se debe cambiar la URL de los services y colocar solo la URI
