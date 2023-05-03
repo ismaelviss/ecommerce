@@ -8,11 +8,13 @@
   Total: $ {{ total }}
 </p>
 <button (click)="createNewProduct()">Crear Producto</button>
+<button (click)="onShowDetails(12312312312)">Detail not found</button>
 <div class="products--grid">
   <app-product [product]="product" *ngFor="let product of products" (addedProduct)="onAddToShoppingCart($event)" (showProduct)="onShowDetails($event)"></app-product>
   <button (click)="loadMore()">Load more</button>
 </div>
 <div class="product-detail" [class.active]="showProductDetail">
+  {{ statusDetail }}
   <div *ngIf="productChosen">
     <button (click)="toggleProductDeatil()">Close</button>
     <h1>{{ productChosen.title }}</h1>

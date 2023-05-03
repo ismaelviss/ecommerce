@@ -1,4 +1,12 @@
 <app-nav></app-nav>
+<button (click)="createUser()">create user</button>
+<button (click)="login()">login</button>
+<button (click)="getProfile()">get profile</button>
+<button (click)="downloadPdf()">descargar PDF</button>
+<p>
+  <input type="file"  (change)="onUpload($event)"/>
+  <img *ngIf="imgRta" [src]="imgRta" alt=""/>
+</p>
 <app-products></app-products>
 <!-- <h1>Index</h1>
 <p><input type="text" [(ngModel)]="imgParent" /></p>

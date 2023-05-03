@@ -35,7 +35,10 @@
       </ul>
     </nav>
     <div class="info">
-      <div class="account">ismaelviss@gmail.com</div>
+      <div class="account">
+        <button *ngIf="!user; else elseBlock" (click)="login()">Login</button>
+        <ng-template #elseBlock>{{user?.email}}</ng-template>
+      </div>
       <div class="cart">
       <div>
         <a href="">

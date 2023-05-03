@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CreateProductDTO, Product, UpdateProduct } from 'src/app/models/product.model';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { StoreService } from 'src/app/services/store/store.service';
-
+import Swal from 'sweetalert2';
+import { switchMap } from 'rxjs/operators'
+import { zip } from 'rxjs'
 
 @Component({
   selector: 'app-products',
@@ -83,13 +85,30 @@ export class ProductsComponent implements OnInit {
     this.showProductDetail = !this.showProductDetail;
   }
 
+  statusDetail: 'loading' | 'success' | 'error' | 'init' = 'init';
+
   onShowDetails(id: number) {
-    console.log('id: ' + id);
-    this.productsService.getProduct(id).subscribe(data => {
-      console.log('product: ', data);
+      console.log('id: ' + id);
+      this.statusDetail = 'loading';
       this.toggleProductDeatil();
-      this.productChosen = data;
-    });
+      this.productsService.getProduct(id).subscribe({
+        next: (data) => {
+        console.log('product: ', data);
+
+        this.productChosen = data;
+        this.statusDetail = 'success';
+        },
+        error: (error) => {
+          console.error(error);
+          this.statusDetail = 'error';
+          Swal.fire({
+            title: error,
+            text: error,
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          });
+        }
+      });
   }
 
   createNewProduct() {
@@ -130,5 +149,41 @@ export class ProductsComponent implements OnInit {
         this.showProductDetail = false;
       }
     });
+  }
+
+  readAndUpdate(id: number) {
+    // callback hell
+    this.productsService.getProduct(id).subscribe({
+      next: (data) => {
+        this.productsService.update(id, {title: 'change'}).subscribe({
+          next: (response) => {
+            console.log(response);
+          }
+        });
+      }
+    });
+
+    //buena practica
+    this.productsService.getProduct(id)
+    .pipe(
+      switchMap((product) => {
+        return this.productsService.update(product.id, {title: 'change'});
+      })
+    ).subscribe({
+      next: (data) => {
+
+      }
+    });
+
+    // mandar peticiones en paralelo al mismo tiempo
+    zip(
+      this.productsService.getProduct(id),
+      this.productsService.update(id, {title: 'change'})
+    ).subscribe({
+      next: (data) => {
+        const read = data[0];
+        const update = data[1];
+      }
+    })
   }
 }

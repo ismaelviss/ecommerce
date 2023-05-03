@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http'
+import { HttpClient, HttpErrorResponse, HttpParams, HttpStatusCode } from '@angular/common/http'
 import { CreateProductDTO, Product, UpdateProduct } from 'src/app/models/product.model';
-import { retry } from 'rxjs/operators'
+import { catchError, retry, map } from 'rxjs/operators'
+import { throwError } from 'rxjs'
+import { environment } from './../../../environments/environment'
+import { checkTime } from './../../interceptors/time.interceptor'
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +13,7 @@ export class ProductsService {
 
   // si se agrega un proxy se puede modificar el origen para pasar el CORS, esto solo funciona para desarrollo
   //private apiURL = 'https://young-sands-07814.herokuapp.com/api/products';
-  private apiURL = '/api/products';
+  private apiURL = `${environment.API_URL}/api/products`;
 
   constructor(
     private httpClient: HttpClient
@@ -25,11 +28,31 @@ export class ProductsService {
       params = params.set('offset', offset);
     }
 
-    return this.httpClient.get<Product[]>(this.apiURL, { params }).pipe(retry(3));
+    return this.httpClient.get<Product[]>(this.apiURL, { params, context:  checkTime() })
+    .pipe(
+      retry(3),
+      map(products => products.map(item => {
+        return {
+          ...item,
+          taxes: item.price * 0.12
+        }
+      }))
+    );
   }
 
   getProduct(id: number) {
-    return this.httpClient.get<Product>(`${this.apiURL}/${id}`);
+    return this.httpClient.get<Product>(`${this.apiURL}/${id}`)
+    .pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 500) {
+          return throwError('Ups algo salio mal');
+        }
+        if (error.status === HttpStatusCode.NotFound) {
+          return throwError('el producto no existe');
+        }
+        return throwError('Ups algo salio mal');
+      })
+    );
   }
 
   getProductsByPage(limit: number, offset: number) {
@@ -38,7 +61,16 @@ export class ProductsService {
         limit,
         offset
       }
-    });
+    })
+    .pipe(
+      retry(3),
+      map(products => products.map(item => {
+        return {
+          ...item,
+          taxes: item.price * 0.12
+        }
+      }))
+    );
   }
 
   create(data: CreateProductDTO) {
